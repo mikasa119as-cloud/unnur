@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>EduVault Dosen Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --tx: #1e293b;
+      --mu: #64748b;
+      --bd: #e2e8f0;
+      --pr: #4f46e5;
+      --ok: #059669;
+      --er: #e11d48;
+      --wn: #d97706;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --tx: #e2e8f0;
+        --mu: #94a3b8;
+        --bd: #334155;
+        --pr: #818cf8;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --tx: #e2e8f0;
+      --mu: #94a3b8;
+      --bd: #334155;
+      --pr: #818cf8;
+    }
+    html, body { height: auto; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--tx);
+      font: 14px/1.5 Inter, system-ui, sans-serif;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0 0 auto;
+      height: env(safe-area-inset-top, 0px);
+      background: var(--card);
+      z-index: 10;
+    }
+    nav {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      overflow-x: auto;
+      background: var(--card);
+      border-bottom: 1px solid var(--bd);
+      padding: 8px 12px;
+      position: sticky;
+      top: env(safe-area-inset-top, 0px);
+      z-index: 9;
+    }
+    nav b { font-weight: 800; margin-right: 6px; white-space: nowrap; }
+    .t {
+      border: 0;
+      background: none;
+      color: var(--mu);
+      padding: 7px 12px;
+      border-radius: 9px;
+      font: 600 13px inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .t.on { background: var(--pr); color: #fff; }
+    main { max-width: 1120px; margin: auto; padding: 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .g { display: grid; gap: 12px; margin-bottom: 14px; }
+    .g2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .g4 { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    .btn {
+      background: var(--pr);
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 13px;
+      font: 600 13px inherit;
+      cursor: pointer;
+    }
+    .btn:hover { opacity: 0.92; }
+    .btn.s { background: transparent; color: var(--tx); border: 1px solid var(--bd); }
+    .btn.d { background: var(--er); color: #fff; }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--tx);
+      font: inherit;
+      margin: 3px 0;
+    }
+    input[type=checkbox], input[type=radio] { width: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 7px 8px;
+      border-bottom: 1px solid var(--bd);
+      text-align: left;
+      vertical-align: middle;
+    }
+    th { font-size: 11px; color: var(--mu); text-transform: uppercase; }
+    .bar { height: 8px; background: var(--bd); border-radius: 9px; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: var(--ok); transition: width 0.25s ease; }
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--bd);
+      color: var(--tx);
+      white-space: nowrap;
+    }
+    .tag.ok { background: #05966922; color: var(--ok); }
+    .tag.wn { background: #d9770622; color: var(--wn); }
+    .tag.er { background: #e11d4822; color: var(--er); }
+    .big { font-size: 26px; font-weight: 800; }
+    .mu { color: var(--mu); font-size: 12px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .row > input, .row > select { width: auto; }
+    .at {
+      width: 32px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      background: var(--bg);
+      color: var(--tx);
+      font-weight: 700;
+      cursor: pointer;
+      margin-right: 3px;
+    }
+    .at.on { color: #fff; border-color: transparent; }
+    .at.on.H { background: #059669; }
+    .at.on.I { background: #2563eb; }
+    .at.on.S { background: #d97706; }
+    .at.on.A { background: #e11d48; }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: #0009;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+    .modal.on { display: flex; }
+    .modal > div {
+      background: var(--card);
+      border-radius: 16px;
+      max-width: 780px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: auto;
+      padding: 18px;
+    }
+    .opt {
+      display: block;
+      padding: 8px 10px;
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      margin: 4px 0;
+      cursor: pointer;
+    }
+    .opt.ok { border-color: #059669; background: #05966922; }
+    .opt.no { border-color: #e11d48; background: #e11d4822; }
+    #ts {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      display: none;
+      z-index: 60;
+      font-size: 13px;
+    }
+    .big.pk { font-size: 34px; text-align: center; padding: 14px; }
+    .done-txt { text-decoration: line-through; color: var(--mu); }
+    @media print {
+      nav, .btn, input, select, textarea, #ts, .modal { display: none !important; }
+      body { background: #fff; color: #000; }
+      .card { border: 1px solid #ccc; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="nv"></nav>
+  <main id="mn"></main>
+  <div class="modal" id="md"><div id="mc"></div></div>
+  <div id="ts"></div>
+
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    const $ = id => document.getElementById(id);
+    const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+
+    const K = 'evpro1';
+    const TABS = [
+      ['dash', 'Dashboard'],
+      ['mat', 'Materi'],
+      ['quiz', 'Kuis'],
+      ['rps', 'RPS'],
+      ['mhs', 'Mahasiswa'],
+      ['rkp', 'Rekap'],
+      ['tgs', 'Tugas'],
+      ['tool', 'Alat Kelas']
+    ];
+    const CAT = ['Modul PDF', 'Slide PPT', 'Video/Tautan', 'Soal & Latihan', 'Jurnal/Referensi', 'Excel/Data'];
+    const SW = new Set(
+      'adalah merupakan dengan untuk dalam sebagai bahwa tersebut melalui antara secara dapat harus yaitu yakni kepada terhadap oleh dari pada yang atau serta karena sehingga apabila tentang berdasarkan meliputi bertujuan mempunyai memiliki sebuah dilakukan setiap lebih akan juga masih'.split(' ')
+    );
+
+    const def = () => ({
+      cur: 'c1',
+      sem: 'Ganjil 2026/2027',
+      courses: [
+        { id: 'c1', name: 'Hukum Administrasi Negara' },
+        { id: 'c2', name: 'Analisis Kebijakan Publik' }
+      ],
+      mats: [
+        {
+          id: 'm1',
+          t: 'Modul 01: Asas-Asas Umum Pemerintahan yang Baik',
+          c: 'c1',
+          cat: 'Modul PDF',
+          fn: 'aaupb.pdf',
+          sz: 3.4,
+          dl: 12,
+          dt: '2026-08-20',
+          tx: 'Asas-Asas Umum Pemerintahan yang Baik merupakan prinsip etis dan yuridis yang menjadi pedoman pejabat administrasi negara. Berdasarkan Undang-Undang Nomor 30 Tahun 2014, asas kepastian hukum mengutamakan landasan peraturan perundang-undangan dan keadilan dalam setiap kebijakan. Keputusan Tata Usaha Negara yang bertentangan dengan asas tersebut dapat dibatalkan melalui gugatan di Pengadilan Tata Usaha Negara. Diskresi adalah keputusan yang ditetapkan pejabat pemerintahan untuk mengatasi persoalan konkret apabila peraturan perundang-undangan tidak mengatur atau tidak lengkap.'
+        },
+        {
+          id: 'm2',
+          t: 'Slide: Siklus Perumusan Kebijakan Publik',
+          c: 'c2',
+          cat: 'Slide PPT',
+          fn: 'siklus.pptx',
+          sz: 8.6,
+          dl: 9,
+          dt: '2026-09-12',
+          tx: 'Kebijakan publik adalah serangkaian tindakan yang ditetapkan pemerintah demi kepentingan seluruh masyarakat. Menurut William Dunn, siklus kebijakan terdiri dari penyusunan agenda, formulasi, adopsi, implementasi, dan evaluasi kebijakan. Implementasi kebijakan sering menghadapi hambatan komunikasi, keterbatasan sumber daya, disposisi pelaksana, serta struktur birokrasi. Evaluasi kebijakan bertujuan menilai efektivitas, efisiensi, kecukupan, dan responsivitas program publik.'
+        }
+      ],
+      quizzes: [],
+      stu: ['Aditya Nugraha', 'Bunga Lestari', 'Citra Dewi', 'Dimas Prakoso', 'Eka Putri', 'Farhan Maulana'].map(
+        (m, i) => ({ id: 's' + i, c: 'c1', n: '2026' + (100 + i), m })
+      ),
+      att: {},
+      gr: {},
+      rps: {},
+      tgs: [
+        { id: 't1', c: 'c1', t: 'Resume UU No. 30 Tahun 2014 tentang Administrasi Pemerintahan', due: '2026-12-05', d: false }
+      ],
+      th: { n: 55, h: 75 },
+      w: { tugas: 30, uts: 30, uas: 40 }
+    });
+
+    let S;
+    try { S = JSON.parse(localStorage.getItem(K)); } catch (e) {}
+    S = S || def();
+    S.tgs = S.tgs || [];
+    S.th = S.th || { n: 55, h: 75 };
+    S.sem = S.sem || 'Ganjil 2026/2027';
+    S.w = S.w || { tugas: 30, uts: 30, uas: 40 };
+
+    const sv = () => {
+      try { localStorage.setItem(K, JSON.stringify(S)); } catch (e) { toast('Penyimpanan lokal penuh'); }
+    };
+
+    let db;
+    const idbP = new Promise(r => {
+      try {
+        const q = indexedDB.open('evpro', 1);
+        q.onupgradeneeded = () => q.result.createObjectStore('f');
+        q.onsuccess = () => { db = q.result; r(); };
+        q.onerror = () => r();
+      } catch (e) { r(); }
+    });
+
+    const io = (m, k, v) => new Promise(r => {
+      if (!db) return r();
+      try {
+        const o = db.transaction('f', m == 'get' ? 'readonly' : 'readwrite').objectStore('f');
+        const q = m == 'put' ? o.put(v, k) : m == 'get' ? o.get(k) : o.delete(k);
+        q.onsuccess = () => r(q.result);
+        q.onerror = () => r();
+      } catch (e) { r(); }
+    });
+
+    function dl(filename, data, type = 'text/csv;charset=utf-8') {
+      const blob = data instanceof Blob ? data : new Blob(['\ufeff' + data], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    function toast(m) {
+      const t = $('ts');
+      t.textContent = m;
+      t.style.display = 'block';
+      clearTimeout(t.h);
+      t.h = setTimeout(() => { t.style.display = 'none'; }, 2800);
+    }
+
+    const cn = id => (S.courses.find(c => c.id == id) || {}).name || '-';
+    const stu = () => S.stu.filter(s => s.c == S.cur);
+    const rp = c => (S.rps[c] = S.rps[c] || Array.from({ length: 16 }, () => ({ t: '', m: '', d: false })));
+    const hr = n => n >= 85 ? 'A' : n >= 75 ? 'B' : n >= 65 ? 'C' : n >= 50 ? 'D' : 'E';
+
+    function fin(id) {
+      const g = S.gr[id];
+      if (!g || !Object.keys(g).length) return null;
+      const w = S.w, t = ((+w.tugas || 0) + (+w.uts || 0) + (+w.uas || 0)) || 1;
+      return (((+g.tugas || 0) * (+w.tugas || 0)) + ((+g.uts || 0) * (+w.uts || 0)) + ((+g.uas || 0) * (+w.uas || 0))) / t;
+    }
+
+    const fm = id => {
+      const n = fin(id);
+      return n == null ? '–' : n.toFixed(1) + ' (' + hr(n) + ')';
+    };
+
+    function pct(id, c) {
+      const ks = Object.keys(S.att).filter(k => k.startsWith(c + '|'));
+      return ks.length ? Math.round(ks.filter(k => S.att[k][id] == 'H').length / ks.length * 100) : null;
+    }
+
+    function openM(h) {
+      $('mc').innerHTML = h;
+      $('md').classList.add('on');
+    }
+    function closeM() {
+      $('md').classList.remove('on');
+      $('mc').innerHTML = '';
+      if (window.tm2) clearInterval(window.tm2);
+    }
+    $('md').onclick = e => { if (e.target.id == 'md') closeM(); };
+
+    let T = 'dash', P = 1;
+
+    function toggleTheme() {
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      toast('Tema: ' + (next === 'dark' ? 'Gelap' : 'Terang'));
+    }
+
+    function go(t) {
+      T = t || T;
+      $('nv').innerHTML =
+        '<b>🎓 EduVault Pro</b>' +
+        TABS.map(([k, l]) => `<button class="t${k == T ? ' on' : ''}" onclick="go('${k}')">${l}</button>`).join('') +
+        `<span style="flex:1"></span>` +
+        `<select id="cs" onchange="S.cur=this.value;sv();go()" style="width:175px">${S.courses.map(c => `<option value="${c.id}"${c.id == S.cur ? ' selected' : ''}>${E(c.name)}</option>`).join('')}</select>` +
+        `<input id="nc" placeholder="MK baru" style="width:105px">` +
+        `<button class="btn s" onclick="addC()">+</button>` +
+        `<button class="btn s" onclick="toggleTheme()" title="Ganti tema">🌓</button>`;
+      $('mn').innerHTML = R[T]();
+      if (T == 'mat') lm();
+      if (T == 'quiz') rQ();
+    }
+
+    function addC() {
+      const n = $('nc').value.trim();
+      if (!n) return toast('Nama MK wajib diisi');
+      const id = 'c' + Date.now();
+      S.courses.push({ id, name: n });
+      S.cur = id;
+      sv();
+      go();
+    }
+
+    const R = {};
+
+    // ---------- DASHBOARD ----------
+    R.dash = () => {
+      const c = S.cur, st = stu(), r = rp(c), dn = r.filter(x => x.d).length, nx = r.findIndex(x => !x.d);
+      const ap = st.map(s => pct(s.id, c)).filter(x => x != null);
+      const av = ap.length ? Math.round(ap.reduce((a, b) => a + b, 0) / ap.length) + '%' : '–';
+      const minH = S.th.h ?? 75;
+      const risk = st.filter(s => { const p = pct(s.id, c); return p != null && p < minH; });
+      const gd = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+      st.forEach(s => { const g = fin(s.id); if (g != null) gd[hr(g)]++; });
+      const mx = Math.max(1, ...Object.values(gd));
+      const mm = S.mats.filter(m => m.c == c);
+
+      return `
+        <div class="row" style="justify-content:space-between;margin-bottom:10px">
+          <div><b style="font-size:17px">${E(cn(c))}</b> <span class="tag">${E(S.sem)}</span></div>
+          <button class="btn s" onclick="window.print()">🖨 Cetak Ringkasan</button>
+        </div>
+        <div class="g g4">${[
+          ['Materi MK ini', mm.length],
+          ['Mahasiswa', st.length],
+          ['Progres RPS', dn + '/16'],
+          ['Rata-rata hadir', av],
+          ['Paket kuis', S.quizzes.length]
+        ].map(([l, v]) => `<div class="card" style="margin:0"><div class="mu">${l}</div><div class="big">${v}</div></div>`).join('')}</div>
+        <div class="g g2">
+          <div class="card">
+            <b>Pertemuan berikutnya</b>
+            ${nx < 0
+              ? '<p>🎉 Semua 16 pertemuan selesai.</p>'
+              : `<p><b>Pertemuan ${nx + 1}:</b> ${E(r[nx].t || 'Topik belum diisi')}</p>${r[nx].m ? `<button class="btn s" onclick="pv('${r[nx].m}')">📄 Buka materi</button> ` : ''}`}
+            <button class="btn" onclick="P=${Math.max(1, nx + 1)};go('mhs')">✅ Mulai absensi</button>
+            <div class="bar" style="margin-top:12px"><i style="width:${dn / 16 * 100}%"></i></div>
+          </div>
+          <div class="card">
+            <b>⚠️ Perlu perhatian (hadir &lt; ${minH}%)</b>
+            ${risk.length
+              ? risk.map(s => `<div class="row" style="justify-content:space-between"><span>${E(s.m)}</span><span class="tag er">${pct(s.id, c)}%</span></div>`).join('')
+              : '<p class="mu">Belum ada mahasiswa di bawah ambang kehadiran.</p>'}
+          </div>
+        </div>
+        ${pies(c, gd)}
+        <div class="g g2">
+          <div class="card">
+            <b>Sebaran nilai akhir</b>
+            ${Object.entries(gd).map(([k, v]) => `<div class="row"><span style="width:18px">${k}</span><div class="bar" style="flex:1"><i style="width:${v / mx * 100}%"></i></div><span>${v}</span></div>`).join('')}
+          </div>
+          <div class="card">
+            <b>Materi terpopuler</b>
+            ${[...S.mats].sort((a, b) => b.dl - a.dl).slice(0, 4).map(m => `<div class="row" style="justify-content:space-between"><a href="#" onclick="pv('${m.id}');return false">${E(m.t)}</a><span class="tag">${m.dl}× unduh</span></div>`).join('') || '<p class="mu">Belum ada materi.</p>'}
+          </div>
+        </div>`;
+    };
+
+    // ---------- MATERI ----------
+    let pend = null;
+    R.mat = () => `
+      <div class="card">
+        <b>Unggah bahan ajar</b>
+        <p class="mu">PDF, PPTX, XLSX, dan CSV dibaca teksnya otomatis untuk ringkasan &amp; kuis.</p>
+        <input type="file" id="ff" accept=".pdf,.pptx,.ppt,.xlsx,.xls,.csv,.docx,.doc" onchange="pick(this.files[0])">
+        <div id="fs" class="mu"></div>
+        <input id="ul" placeholder="…atau tempel tautan video / Drive (https://…)" oninput="if(this.value)$('mk').value='Video/Tautan'">
+        <input id="mt" placeholder="Judul bahan ajar">
+        <div class="row"><select id="mk">${CAT.map(x => `<option>${x}</option>`).join('')}</select></div>
+        <textarea id="mx" rows="4" placeholder="Isi/ringkasan teks materi (terisi otomatis dari file, atau tempel sendiri)"></textarea>
+        <button class="btn" onclick="addM()">Simpan ke repositori</button>
+      </div>
+      <div class="card">
+        <div class="row">
+          <input id="sq" placeholder="🔍 Cari judul atau isi…" oninput="lm()" style="flex:1">
+          <label class="row"><input type="checkbox" id="all" onchange="lm()"> Semua MK</label>
+        </div>
+        <div id="ml" class="g g2" style="margin-top:12px"></div>
+      </div>`;
+
+    function lm() {
+      if (!$('ml')) return;
+      const q = $('sq').value.toLowerCase(), al = $('all').checked;
+      const l = S.mats.filter(m => (al || m.c == S.cur) && (m.t + ' ' + m.tx).toLowerCase().includes(q));
+      $('ml').innerHTML = l.map(m => `
+        <div class="card" style="margin:0">
+          <div class="row" style="justify-content:space-between"><span class="tag">${E(m.cat)}</span><span class="mu">${E(m.dt)}</span></div>
+          <b style="display:block;margin:6px 0">${E(m.t)}</b>
+          <div class="mu">${E(cn(m.c))} · ${m.sz} MB · ${m.dl}× unduh</div>
+          <p class="mu">${E(m.tx.slice(0, 130))}…</p>
+          <div class="row">
+            <button class="btn s" onclick="pv('${m.id}')">Detail</button>
+            <button class="btn" onclick="qFrom('${m.id}')">✨ Kuis</button>
+            <button class="btn s" onclick="dm('${m.id}')">${m.url ? '🔗' : '⬇'}</button>
+            <button class="btn s" onclick="delM('${m.id}')">🗑</button>
+          </div>
+        </div>`).join('') || '<p class="mu">Belum ada materi.</p>';
+    }
+
+    async function xrows(f) {
+      if (!window.XLSX) return [];
+      const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      return XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    }
+
+    async function pdfT(f) {
+      if (!window.pdfjsLib) return '';
+      const p = await pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise, o = [];
+      for (let i = 1; i <= Math.min(p.numPages, 25); i++) {
+        o.push((await (await p.getPage(i)).getTextContent()).items.map(x => x.str).join(' '));
+      }
+      return o.join('. ');
+    }
+
+    async function pptxT(f) {
+      const b = new Uint8Array(await f.arrayBuffer()), v = new DataView(b.buffer);
+      let i = 0, o = [];
+      while (i < b.length - 30 && v.getUint32(i, true) == 0x04034b50) {
+        const m = v.getUint16(i + 8, true), cs = v.getUint32(i + 18, true);
+        const nl = v.getUint16(i + 26, true), el = v.getUint16(i + 28, true);
+        const n = new TextDecoder().decode(b.slice(i + 30, i + 30 + nl)), s = i + 30 + nl + el;
+        if (/ppt\/slides\/slide\d+\.xml$/.test(n) && m == 8 && cs && typeof DecompressionStream !== 'undefined') {
+          const x = await new Response(
+            new Blob([b.slice(s, s + cs)]).stream().pipeThrough(new DecompressionStream('deflate-raw'))
+          ).text();
+          o.push([+n.match(/(\d+)\.xml/)[1], (x.match(/<a:t>[^<]*<\/a:t>/g) || []).map(t => t.replace(/<[^>]+>/g, '')).join(' ')]);
+        }
+        i = s + cs;
+      }
+      return o.sort((a, b) => a[0] - b[0]).map(z => z[1]).join('. ');
+    }
+
+    async function pick(f) {
+      if (!f) return;
+      const e = f.name.split('.').pop().toLowerCase(), s = $('fs');
+      pend = f;
+      $('mk').value = e.startsWith('ppt') ? 'Slide PPT'
+        : /^(xlsx?|csv)$/.test(e) ? 'Excel/Data'
+        : e.startsWith('doc') ? 'Soal & Latihan' : 'Modul PDF';
+      if (!$('mt').value) $('mt').value = f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ');
+      s.textContent = 'Membaca isi file…';
+      let t = '';
+      try {
+        if (e == 'pdf') t = await pdfT(f);
+        else if (e == 'pptx') t = await pptxT(f);
+        else if (/^(xlsx?|csv)$/.test(e)) t = (await xrows(f)).map(r => r.filter(Boolean).join(' ')).join('. ');
+      } catch (x) {}
+      t = t.replace(/\s+/g, ' ').trim();
+      $('mx').value = t.slice(0, 6000);
+      s.textContent = t.length > 40
+        ? `✅ ${t.length} karakter teks berhasil diekstrak`
+        : 'File siap disimpan; teks tidak terbaca otomatis (scan/format lama). Tempel ringkasan secara manual bila perlu.';
+    }
+
+    async function addM() {
+      const t = $('mt').value.trim();
+      if (!t) return toast('Judul wajib diisi');
+      const u = $('ul').value.trim();
+      if (u && !/^https:\/\//.test(u)) return toast('Tautan harus diawali https://');
+      const id = 'm' + Date.now(), f = pend;
+      const m = {
+        id, t, url: u, c: S.cur, cat: $('mk').value,
+        fn: f ? f.name : u ? u.replace(/^https:\/\//, '').slice(0, 40) : 'catatan.txt',
+        sz: f ? Math.max(.1, +(f.size / 1048576).toFixed(2)) : 0.1,
+        dl: 0, dt: new Date().toISOString().slice(0, 10),
+        tx: $('mx').value.trim() || ('Materi ' + t), blob: !!f
+      };
+      if (f) { await idbP; await io('put', id, f); }
+      S.mats.unshift(m);
+      sv();
+      pend = null;
+      toast('Materi tersimpan');
+      go('mat');
+    }
+
+    function delM(id) {
+      if (!confirm('Hapus materi ini?')) return;
+      S.mats = S.mats.filter(m => m.id != id);
+      io('del', id);
+      Object.values(S.rps).forEach(r => r.forEach(x => { if (x.m == id) x.m = ''; }));
+      sv();
+      go('mat');
+    }
+
+    async function dm(id) {
+      const m = S.mats.find(x => x.id == id);
+      if (!m) return;
+      m.dl++;
+      sv();
+      if (m.url) { window.open(m.url, '_blank', 'noopener'); lm(); return; }
+      await idbP;
+      const f = await io('get', id);
+      if (f) dl(m.fn, f, f.type || 'application/octet-stream');
+      else dl(m.fn.replace(/\.[^.]+$/, '') + '.txt', m.t + '\n\n' + m.tx, 'text/plain;charset=utf-8');
+      lm();
+    }
+
+    function sum(t, n = 3) {
+      const s = t.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).filter(x => x.split(' ').length > 5);
+      const f = {}, ws = x => (x.toLowerCase().match(/[a-z]{5,}/g) || []).filter(w => !SW.has(w));
+      ws(t).forEach(w => { f[w] = (f[w] || 0) + 1; });
+      const sc = x => ws(x).reduce((a, w) => a + f[w], 0) / Math.sqrt(x.length);
+      const top = [...s].sort((a, b) => sc(b) - sc(a)).slice(0, n);
+      return {
+        r: s.filter(x => top.includes(x)).join(' ') || t.slice(0, 300),
+        k: Object.entries(f).sort((a, b) => b[1] - a[1]).slice(0, 8).map(e => e[0])
+      };
+    }
+
+    function pv(id) {
+      const m = S.mats.find(x => x.id == id);
+      if (!m) return;
+      const z = sum(m.tx);
+      const sumTxt = JSON.stringify(m.t + '\n\n' + z.r + '\n\nKata kunci: ' + z.k.join(', '));
+      openM(`
+        <div class="row" style="justify-content:space-between"><b>${E(m.t)}</b><button class="btn s" onclick="closeM()">✕</button></div>
+        <p class="mu">${E(cn(m.c))} · ${E(m.fn)}</p>
+        ${m.url ? `<p><a href="${E(m.url)}" target="_blank" rel="noopener">🔗 Buka tautan: ${E(m.url)}</a></p>` : ''}
+        <div class="card"><b>📝 Ringkasan otomatis</b><p>${E(z.r)}</p><div class="row">${z.k.map(k => `<span class="tag">#${E(k)}</span>`).join('')}</div></div>
+        <details><summary>Teks lengkap</summary><p style="white-space:pre-line">${E(m.tx)}</p></details>
+        <div class="row" style="margin-top:10px">
+          <button class="btn" onclick="closeM();qFrom('${m.id}')">✨ Buat kuis</button>
+          <button class="btn s" onclick="dm('${m.id}')">⬇ Unduh</button>
+          <button class="btn s" onclick='dl("ringkasan.txt",${E(sumTxt)},"text/plain;charset=utf-8")'>Simpan ringkasan</button>
+        </div>`);
+    }
+
+    // ---------- KUIS ----------
+    let Q = { t: 'Kuis Baru', qs: [] };
+
+    function gen(t, n, ty) {
+      const ss = t.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).filter(x => x.split(' ').length >= 6);
+      const kw = [...new Set((t.match(/[A-Za-z]{6,}/g) || []).filter(w => !SW.has(w.toLowerCase())))];
+      const q = [], sh = a => [...a].sort(() => Math.random() - .5);
+      if (!ss.length) return q;
+      for (let i = 0; i < n; i++) {
+        const s = ss[i % ss.length].replace(/[.!?]$/, '');
+        const ks = (s.match(/[A-Za-z]{6,}/g) || []).filter(w => !SW.has(w.toLowerCase()));
+        const k = ks[Math.floor(i / ss.length) % Math.max(ks.length, 1)] || kw[i % kw.length] || 'konsep';
+        if (ty == 'TF' || (ty == 'MIX' && i % 2)) {
+          const tr = i % 2 == 0;
+          q.push({
+            q: 'Benar atau salah?\n“' + (tr ? s : s.replace(k, 'faktor eksternal yang tidak relevan')) + '.”',
+            o: ['Benar', 'Salah'], a: tr ? 0 : 1, e: 'Kalimat asli: “' + s + '.”'
+          });
+        } else {
+          const d = sh(kw.filter(w => w.toLowerCase() != k.toLowerCase())).slice(0, 3);
+          while (d.length < 3) d.push(['Akuntabilitas', 'Efektivitas', 'Legitimasi'][d.length]);
+          const o = sh([k, ...d]);
+          q.push({
+            q: 'Lengkapi pernyataan berikut:\n“' + s.replace(k, '________') + '.”',
+            o, a: o.indexOf(k), e: 'Jawaban: ' + k + '. Kalimat asli: “' + s + '.”'
+          });
+        }
+      }
+      return q;
+    }
+
+    R.quiz = () => `
+      <div class="g g2">
+        <div class="card">
+          <b>✨ Generator Kuis</b>
+          <select id="qs"><option value="">— Tempel teks sendiri —</option>${S.mats.map(m => `<option value="${m.id}">${E(m.t)}</option>`).join('')}</select>
+          <textarea id="qt" rows="3" placeholder="Teks materi (bila memilih tempel teks)"></textarea>
+          <div class="row">
+            <select id="qn"><option>5</option><option>10</option><option>3</option></select>
+            <select id="qy"><option value="MCQ">Pilihan ganda</option><option value="TF">Benar/Salah</option><option value="MIX">Campuran</option></select>
+          </div>
+          <button class="btn" onclick="mk()">Generate</button>
+        </div>
+        <div class="card">
+          <b>🗂 Bank kuis</b>
+          ${S.quizzes.map((z, i) => `<div class="row" style="justify-content:space-between"><a href="#" onclick="Q=JSON.parse(JSON.stringify(S.quizzes[${i}]));rQ();return false">${E(z.t)} (${z.qs.length})</a><button class="btn s" onclick="S.quizzes.splice(${i},1);sv();go('quiz')">🗑</button></div>`).join('') || '<p class="mu">Belum ada kuis tersimpan.</p>'}
+        </div>
+      </div>
+      <div id="qq"></div>`;
+
+    function mk() {
+      const id = $('qs').value, m = S.mats.find(x => x.id == id), t = m ? m.tx : $('qt').value;
+      const qs = gen(t, +$('qn').value, $('qy').value);
+      if (!qs.length) return toast('Teks terlalu pendek untuk dibuat soal');
+      Q = { t: 'Kuis: ' + (m ? m.t : 'Materi kustom'), qs };
+      rQ();
+    }
+
+    function qFrom(id) {
+      T = 'quiz';
+      go('quiz');
+      if ($('qs')) { $('qs').value = id; mk(); }
+    }
+
+    function rQ() {
+      const o = $('qq');
+      if (!o) return;
+      if (!Q.qs.length) { o.innerHTML = ''; return; }
+      o.innerHTML = `
+        <div class="card">
+          <input value="${E(Q.t)}" oninput="Q.t=this.value" style="font-weight:700">
+          <div class="row">
+            <button class="btn" onclick="sim()">▶ Simulasi mahasiswa</button>
+            <button class="btn s" onclick="S.quizzes.unshift(JSON.parse(JSON.stringify(Q)));sv();toast('Kuis disimpan');go('quiz')">💾 Simpan</button>
+            <button class="btn s" onclick="qx()">⬇ Naskah + kunci</button>
+          </div>
+        </div>` +
+        Q.qs.map((q, i) => `
+          <div class="card">
+            <b>${i + 1}.</b>
+            <textarea rows="2" onchange="Q.qs[${i}].q=this.value">${E(q.q)}</textarea>
+            ${q.o.map((x, j) => `<div class="row"><input type="radio" name="r${i}" ${q.a == j ? 'checked' : ''} onchange="Q.qs[${i}].a=${j}"><span>${'ABCD'[j]}.</span><input value="${E(x)}" style="flex:1" onchange="Q.qs[${i}].o[${j}]=this.value"></div>`).join('')}
+            <div class="mu">💡 ${E(q.e)}</div>
+            <button class="btn s" onclick="Q.qs.splice(${i},1);rQ()">Hapus soal</button>
+          </div>`).join('');
+    }
+
+    function qx() {
+      let s = Q.t.toUpperCase() + '\n\n';
+      Q.qs.forEach((q, i) => {
+        s += (i + 1) + '. ' + q.q + '\n' + q.o.map((x, j) => '   ' + 'ABCD'[j] + '. ' + x).join('\n') + '\n\n';
+      });
+      s += 'KUNCI JAWABAN\n' + Q.qs.map((q, i) => (i + 1) + '. ' + 'ABCD'[q.a]).join('  ');
+      dl('kuis.txt', s, 'text/plain;charset=utf-8');
+    }
+
+    let A = {};
+    function sim() {
+      A = {};
+      openM(`
+        <div class="row" style="justify-content:space-between"><b>${E(Q.t)}</b><button class="btn s" onclick="closeM()">✕</button></div>` +
+        Q.qs.map((q, i) => `<div class="card"><p style="white-space:pre-line"><b>${i + 1}.</b> ${E(q.q)}</p>${q.o.map((x, j) => `<label class="opt"><input type="radio" name="s${i}" onchange="A[${i}]=${j}"> ${'ABCD'[j]}. ${E(x)}</label>`).join('')}</div>`).join('') +
+        `<button class="btn" onclick="fs()">Kumpulkan &amp; lihat nilai</button>`);
+    }
+
+    function fs() {
+      const ok = Q.qs.filter((q, i) => A[i] === q.a).length, sc = Math.round(ok / Q.qs.length * 100);
+      openM(`
+        <div class="big pk">${sc}/100<div class="mu">${ok} dari ${Q.qs.length} benar</div></div>` +
+        Q.qs.map((q, i) => `<div class="card"><p style="white-space:pre-line">${i + 1}. ${E(q.q)}</p><div class="opt ${A[i] === q.a ? 'ok' : 'no'}">Jawaban: ${A[i] == null ? '(kosong)' : E(q.o[A[i]])} · Kunci: ${E(q.o[q.a])}</div><div class="mu">${E(q.e)}</div></div>`).join('') +
+        `<button class="btn" onclick="closeM()">Tutup</button>`);
+    }
+
+    // ---------- RPS ----------
+    R.rps = () => {
+      const r = rp(S.cur), ms = [...S.mats].sort((a, b) => (b.c == S.cur) - (a.c == S.cur)), dn = r.filter(x => x.d).length;
+      return `
+        <div class="card">
+          <div class="row" style="justify-content:space-between"><b>RPS 16 Pertemuan — ${E(cn(S.cur))}</b><span class="tag">${dn}/16 selesai</span></div>
+          <div class="bar" style="margin:8px 0"><i style="width:${dn / 16 * 100}%"></i></div>
+          <div class="row">
+            <button class="btn s" onclick="autoR()">⚡ Isi otomatis dari materi</button>
+            <button class="btn s" onclick="rx()">⬇ Ekspor CSV</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <tr><th>#</th><th>Topik</th><th>Materi</th><th>Selesai</th></tr>
+              ${r.map((x, i) => `
+                <tr>
+                  <td>${i + 1}${i == 7 ? ' <span class="tag">UTS</span>' : i == 15 ? ' <span class="tag">UAS</span>' : ''}</td>
+                  <td><input value="${E(x.t)}" placeholder="Topik pertemuan" onchange="rp(S.cur)[${i}].t=this.value;sv()"></td>
+                  <td><select onchange="rp(S.cur)[${i}].m=this.value;sv()"><option value="">—</option>${ms.map(m => `<option value="${m.id}"${x.m == m.id ? ' selected' : ''}>${E(m.t.slice(0, 40))}</option>`).join('')}</select></td>
+                  <td><input type="checkbox" ${x.d ? 'checked' : ''} onchange="rp(S.cur)[${i}].d=this.checked;sv();go('rps')"></td>
+                </tr>`).join('')}
+            </table>
+          </div>
+        </div>`;
+    };
+
+    function autoR() {
+      const r = rp(S.cur);
+      let i = 0;
+      S.mats.filter(m => m.c == S.cur).forEach(m => {
+        while (i < 16 && (r[i].t || r[i].m)) i++;
+        if (i < 16) { r[i].t = m.t; r[i].m = m.id; }
+      });
+      sv();
+      toast('RPS diperbarui dari materi MK');
+      go('rps');
+    }
+
+    function rx() {
+      dl('rps-' + cn(S.cur).replace(/\s+/g, '_') + '.csv',
+        'Pertemuan,Topik,Materi,Selesai\n' +
+        rp(S.cur).map((x, i) => [i + 1, x.t, (S.mats.find(m => m.id == x.m) || {}).t || '', x.d ? 'Ya' : 'Belum']
+          .map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n'));
+    }
+
+    // ---------- MAHASISWA ----------
+    R.mhs = () => {
+      const st = stu(), a = S.att[S.cur + '|' + P] || {};
+      return `
+        <div class="card">
+          <div class="row">
+            <b>Absensi &amp; Nilai</b><span style="flex:1"></span>
+            <span class="mu">Bobot %</span>
+            ${['tugas', 'uts', 'uas'].map(k => `<span class="mu">${k.toUpperCase()}</span><input type="number" min="0" max="100" style="width:60px" value="${S.w[k]}" onchange="S.w.${k}=+this.value;sv();go('mhs')">`).join('')}
+            <button class="btn s" onclick="xl([S.cur],'rekap')">⬇ Excel</button>
+          </div>
+          <div class="row" style="margin:8px 0">
+            <span>Pertemuan</span>
+            <select style="width:80px" onchange="P=+this.value;go('mhs')">${[...Array(16)].map((_, i) => `<option${i + 1 == P ? ' selected' : ''}>${i + 1}</option>`).join('')}</select>
+            <button class="btn s" onclick="allH()">Semua hadir</button>
+            <span class="mu">H=Hadir I=Izin S=Sakit A=Alpa</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <tr><th>NIM</th><th>Nama</th><th>Absen P${P}</th><th>Tugas</th><th>UTS</th><th>UAS</th><th>Akhir</th><th>Hadir</th><th></th></tr>
+              ${st.map(s => `
+                <tr>
+                  <td>${E(s.n)}</td><td>${E(s.m)}</td>
+                  <td style="white-space:nowrap">${['H', 'I', 'S', 'A'].map(v => `<button class="at ${v}${a[s.id] == v ? ' on' : ''}" onclick="at('${s.id}','${v}')">${v}</button>`).join('')}</td>
+                  ${['tugas', 'uts', 'uas'].map(f => `<td><input type="number" min="0" max="100" style="width:62px" value="${(S.gr[s.id] || {})[f] ?? ''}" oninput="sg('${s.id}','${f}',this.value)"></td>`).join('')}
+                  <td id="a${s.id}">${fm(s.id)}</td>
+                  <td>${pct(s.id, S.cur) == null ? '–' : pct(s.id, S.cur) + '%'}</td>
+                  <td><button class="btn s" onclick="S.stu=S.stu.filter(x=>x.id!='${s.id}');sv();go('mhs')">🗑</button></td>
+                </tr>`).join('')}
+            </table>
+          </div>
+          ${st.length ? '' : '<p class="mu">Belum ada mahasiswa di MK ini.</p>'}
+        </div>
+        <div class="card">
+          <b>Tambah mahasiswa</b>
+          <div class="row"><input id="sn" placeholder="NIM" style="width:130px"><input id="sm" placeholder="Nama" style="flex:1"><button class="btn" onclick="addS()">Tambah</button></div>
+          <textarea id="sb" rows="3" placeholder="Impor massal: satu baris per mahasiswa, format NIM, Nama"></textarea>
+          <button class="btn s" onclick="imp()">Impor daftar</button>
+          <div class="mu" style="margin-top:10px">Atau unggah Excel (.xlsx) / CSV. Kolom: NIM, Nama, lalu opsional Tugas, UTS, UAS. Baris judul boleh ada.</div>
+          <input type="file" accept=".xlsx,.csv" onchange="impX(this.files[0])">
+        </div>`;
+    };
+
+    function at(id, v) { const k = S.cur + '|' + P; (S.att[k] = S.att[k] || {})[id] = v; sv(); go('mhs'); }
+    function allH() { const k = S.cur + '|' + P; S.att[k] = {}; stu().forEach(s => { S.att[k][s.id] = 'H'; }); sv(); go('mhs'); }
+    function sg(id, f, v) {
+      S.gr[id] = S.gr[id] || {};
+      if (v === '') delete S.gr[id][f];
+      else S.gr[id][f] = Math.min(100, Math.max(0, +v));
+      sv();
+      if ($('a' + id)) $('a' + id).textContent = fm(id);
+    }
+
+    function addS() {
+      const n = $('sn').value.trim(), m = $('sm').value.trim();
+      if (!m) return toast('Nama wajib diisi');
+      S.stu.push({ id: 's' + Date.now(), c: S.cur, n, m });
+      sv(); toast('Mahasiswa ditambahkan'); go('mhs');
+    }
+
+    function imp() {
+      const lines = $('sb').value.split('\n').map(l => l.trim()).filter(Boolean);
+      if (!lines.length) return toast('Daftar kosong');
+      lines.forEach((l, i) => {
+        const p = l.split(/[,;\t]/);
+        S.stu.push({ id: 's' + Date.now() + '_' + i, c: S.cur, n: (p[1] ? p[0] : '').trim(), m: (p[1] || p[0]).trim() });
+      });
+      sv(); toast(lines.length + ' mahasiswa diimpor'); go('mhs');
+    }
+
+    async function impX(f) {
+      if (!f) return;
+      const rows = await xrows(f);
+      let cnt = 0;
+      rows.forEach((r, i) => {
+        const c0 = String(r[0] ?? '').trim(), c1 = String(r[1] ?? '').trim();
+        if (!c0 && !c1) return;
+        if (/^(nim|no\.?\s*induk)$/i.test(c0) && /^(nama|mahasiswa)$/i.test(c1)) return;
+        const nim = c1 ? c0 : '';
+        const nama = c1 || c0;
+        const id = 's' + Date.now() + '_' + i;
+        S.stu.push({ id, c: S.cur, n: nim, m: nama });
+        const t = parseFloat(r[2]), u1 = parseFloat(r[3]), u2 = parseFloat(r[4]);
+        if (!isNaN(t) || !isNaN(u1) || !isNaN(u2)) {
+          S.gr[id] = {};
+          if (!isNaN(t)) S.gr[id].tugas = Math.min(100, Math.max(0, t));
+          if (!isNaN(u1)) S.gr[id].uts = Math.min(100, Math.max(0, u1));
+          if (!isNaN(u2)) S.gr[id].uas = Math.min(100, Math.max(0, u2));
+        }
+        cnt++;
+      });
+      sv();
+      toast(cnt + ' data mahasiswa diproses');
+      go('mhs');
+    }
+
+    function xl(courseIds, prefix) {
+      if (!window.XLSX) { cx(); return; }
+      const wb = XLSX.utils.book_new();
+      courseIds.forEach(cid => {
+        const list = S.stu.filter(s => s.c == cid);
+        const aoa = [['NIM', 'Nama', 'Hadir (%)', 'Tugas', 'UTS', 'UAS', 'Nilai Akhir', 'Huruf']];
+        list.forEach(s => {
+          const g = S.gr[s.id] || {}, f = fin(s.id);
+          aoa.push([s.n, s.m, pct(s.id, cid) ?? '', g.tugas ?? '', g.uts ?? '', g.uas ?? '', f == null ? '' : +f.toFixed(1), f == null ? '' : hr(f)]);
+        });
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        const sheetName = cn(cid).replace(/[\\/?*[\]:]/g, '').slice(0, 31) || 'Rekap';
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      });
+      const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      dl(prefix + '.xlsx', new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    }
+
+    function cx() {
+      const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+      dl('rekap-' + cn(S.cur).replace(/\s+/g, '_') + '.csv',
+        'NIM,Nama,Hadir%,Tugas,UTS,UAS,Nilai Akhir,Huruf\n' +
+        stu().map(s => {
+          const g = S.gr[s.id] || {}, f = fin(s.id);
+          return [s.n, s.m, pct(s.id, S.cur) ?? '', g.tugas ?? '', g.uts ?? '', g.uas ?? '', f == null ? '' : f.toFixed(1), f == null ? '' : hr(f)].map(q).join(',');
+        }).join('\n'));
+    }
+
+    // ---------- REKAP ----------
+    R.rkp = () => {
+      const st = stu(), minH = S.th.h ?? 75, minN = S.th.n ?? 55;
+      return `
+        <div class="card">
+          <div class="row" style="justify-content:space-between">
+            <b>📊 Rekapitulasi Akademik — ${E(cn(S.cur))}</b>
+            <div class="row">
+              <button class="btn s" onclick="xl([S.cur],'rekap-' + cn(S.cur).replace(/\\s+/g,'_'))">⬇ Excel MK</button>
+              <button class="btn s" onclick="xl(S.courses.map(c=>c.id),'rekap-semua-mk')">⬇ Excel Semua MK</button>
+              <button class="btn s" onclick="cx()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <span class="mu">Ambang Hadir (%):</span>
+            <input type="number" min="0" max="100" style="width:70px" value="${minH}" onchange="S.th.h=+this.value;sv();go('rkp')">
+            <span class="mu">Ambang Lulus Nilai:</span>
+            <input type="number" min="0" max="100" style="width:70px" value="${minN}" onchange="S.th.n=+this.value;sv();go('rkp')">
+          </div>
+          <div style="overflow-x:auto;margin-top:10px">
+            <table>
+              <tr><th>NIM</th><th>Nama</th><th>Hadir</th><th>Tugas</th><th>UTS</th><th>UAS</th><th>Akhir</th><th>Huruf</th><th>Status</th></tr>
+              ${st.map(s => {
+                const g = S.gr[s.id] || {}, f = fin(s.id), p = pct(s.id, S.cur);
+                let stTag = '<span class="tag">Belum lengkap</span>';
+                if (f != null || p != null) {
+                  const okH = p == null || p >= minH;
+                  const okN = f == null || f >= minN;
+                  if (okH && okN) stTag = '<span class="tag ok">Memenuhi</span>';
+                  else stTag = '<span class="tag er">Perlu tindak lanjut</span>';
+                }
+                return `<tr>
+                  <td>${E(s.n)}</td><td>${E(s.m)}</td>
+                  <td>${p == null ? '–' : p + '%'}</td>
+                  <td>${g.tugas ?? '–'}</td><td>${g.uts ?? '–'}</td><td>${g.uas ?? '–'}</td>
+                  <td>${f == null ? '–' : f.toFixed(1)}</td>
+                  <td>${f == null ? '–' : '<b>' + hr(f) + '</b>'}</td>
+                  <td>${stTag}</td>
+                </tr>`;
+              }).join('')}
+            </table>
+          </div>
+          ${st.length ? '' : '<p class="mu">Belum ada mahasiswa pada mata kuliah ini.</p>'}
+        </div>`;
+    };
+
+    // ---------- TUGAS ----------
+    let tFilter = 'ALL';
+    R.tgs = () => {
+      const list = S.tgs
+        .filter(x => x.c == S.cur)
+        .filter(x => tFilter == 'ALL' ? true : tFilter == 'OPEN' ? !x.d : x.d)
+        .sort((a, b) => (a.due || '9999') > (b.due || '9999') ? 1 : -1);
+
+      return `
+        <div class="card">
+          <b>📌 Tugas &amp; Deadline — ${E(cn(S.cur))}</b>
+          <div class="row" style="margin-top:8px">
+            <input id="tt" placeholder="Judul tugas / kuis / ujian" style="flex:1;min-width:200px">
+            <input type="date" id="td">
+            <button class="btn" onclick="addT()">Tambah</button>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn ${tFilter == 'ALL' ? '' : 's'}" onclick="tFilter='ALL';go('tgs')">Semua</button>
+            <button class="btn ${tFilter == 'OPEN' ? '' : 's'}" onclick="tFilter='OPEN';go('tgs')">Aktif</button>
+            <button class="btn ${tFilter == 'DONE' ? '' : 's'}" onclick="tFilter='DONE';go('tgs')">Selesai</button>
+          </div>
+          <div style="margin-top:12px">
+            ${list.map(x => `
+              <div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)">
+                <label class="row" style="flex:1;cursor:pointer">
+                  <input type="checkbox" ${x.d ? 'checked' : ''} onchange="togT('${x.id}',this.checked)">
+                  <span class="${x.d ? 'done-txt' : ''}"><b>${E(x.t)}</b></span>
+                  <span class="mu">${E(x.due || 'Tanpa tenggat')}</span>
+                </label>
+                <div class="row">
+                  <span class="tag ${x.d ? 'ok' : ''}">${x.d ? 'Selesai' : E(dleft(x.due))}</span>
+                  <button class="btn s" onclick="delT('${x.id}')">🗑</button>
+                </div>
+              </div>`).join('') || '<p class="mu">Belum ada tugas pada filter ini.</p>'}
+          </div>
+        </div>`;
+    };
+
+    function addT() {
+      const t = $('tt').value.trim(), due = $('td').value;
+      if (!t) return toast('Judul tugas wajib diisi');
+      S.tgs.push({ id: 't' + Date.now(), c: S.cur, t, due, d: false });
+      sv(); toast('Tugas ditambahkan'); go('tgs');
+    }
+
+    function togT(id, d) {
+      const item = S.tgs.find(x => x.id == id);
+      if (item) { item.d = d; sv(); go('tgs'); }
+    }
+
+    function delT(id) {
+      S.tgs = S.tgs.filter(x => x.id != id);
+      sv(); go('tgs');
+    }
+
+    // ---------- ALAT KELAS ----------
+    let used = [], tm, tl = 0;
+    R.tool = () => `
+      <div class="g g2">
+        <div class="card">
+          <b>🎲 Pemilih mahasiswa acak</b>
+          <div class="big pk" id="pkn">?</div>
+          <div class="row">
+            <button class="btn" onclick="pickS()">Pilih acak</button>
+            <button class="btn s" onclick="used=[];toast('Daftar direset')">Reset (tanpa ulang)</button>
+          </div>
+        </div>
+        <div class="card">
+          <b>⏱ Timer kelas</b>
+          <div class="big pk" id="tmd">05:00</div>
+          <div class="row">
+            <input type="number" id="tmn" value="5" min="1" style="width:70px"> menit
+            <button class="btn" onclick="tStart()">Mulai</button>
+            <button class="btn s" onclick="clearInterval(tm);tm=0">Jeda</button>
+            <button class="btn s" onclick="clearInterval(tm);tm=0;tl=0;$('tmd').textContent=String($('tmn').value).padStart(2,'0')+':00';$('tmd').style.color=''">Reset</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <b>💾 Cadangan data</b>
+        <p class="mu">Simpan seluruh data (materi, mahasiswa, nilai, RPS, tugas) ke file JSON, atau pulihkan dari cadangan.</p>
+        <div class="row">
+          <button class="btn" onclick="dl('eduvault-backup.json',JSON.stringify(S,null,2),'application/json')">⬇ Cadangkan</button>
+          <input type="file" accept=".json" onchange="rst(this.files[0])" style="max-width:260px">
+        </div>
+      </div>
+      <div class="card">
+        <b>👥 Pembagi kelompok</b>
+        <div class="row">
+          <input type="number" id="gn" value="4" min="2" style="width:70px"> kelompok
+          <button class="btn" onclick="grp()">Acak kelompok</button>
+        </div>
+        <div id="gr" class="g g2" style="margin-top:10px"></div>
+      </div>`;
+
+    async function rst(f) {
+      if (!f) return;
+      try {
+        const obj = JSON.parse(await f.text());
+        if (!obj || !Array.isArray(obj.courses)) return toast('Format JSON cadangan tidak valid');
+        S = { ...def(), ...obj };
+        S.tgs = S.tgs || [];
+        S.th = S.th || { n: 55, h: 75 };
+        S.w = S.w || { tugas: 30, uts: 30, uas: 40 };
+        sv();
+        toast('Data berhasil dipulihkan');
+        go('dash');
+      } catch (e) {
+        toast('Gagal membaca file JSON');
+      }
+    }
+
+    function pickS() {
+      const st = stu();
+      let p = st.filter(s => !used.includes(s.id));
+      if (!st.length) return toast('Belum ada mahasiswa');
+      if (!p.length) { used = []; p = st; }
+      let n = 0;
+      const el = $('pkn');
+      const h = setInterval(() => {
+        el.textContent = p[Math.floor(Math.random() * p.length)].m;
+        if (++n > 14) {
+          clearInterval(h);
+          const w = p[Math.floor(Math.random() * p.length)];
+          used.push(w.id);
+          el.textContent = '🎯 ' + w.m;
+        }
+      }, 70);
+    }
+
+    function tStart() {
+      clearInterval(tm);
+      if (!tl || tl <= 0) tl = Math.max(1, Math.round((+$('tmn').value || 5) * 60));
+      const d0 = $('tmd'); if (d0) d0.style.color = '';
+      tm = setInterval(() => {
+        tl--;
+        const d = $('tmd');
+        if (!d) { clearInterval(tm); return; }
+        d.textContent = String(Math.floor(Math.max(0, tl) / 60)).padStart(2, '0') + ':' + String(Math.max(0, tl) % 60).padStart(2, '0');
+        if (tl <= 0) {
+          clearInterval(tm); tl = 0;
+          d.style.color = '#e11d48';
+          toast('⏰ Waktu habis!');
+          try {
+            const c = new AudioContext(), o = c.createOscillator();
+            o.connect(c.destination); o.start(); o.stop(c.currentTime + .5);
+          } catch (e) {}
+        }
+      }, 1000);
+    }
+
+    function grp() {
+      const n = Math.max(2, +$('gn').value || 2);
+      const st = [...stu()].sort(() => Math.random() - .5);
+      if (!st.length) return toast('Belum ada mahasiswa di MK ini');
+      const g = Array.from({ length: n }, () => []);
+      st.forEach((s, i) => g[i % n].push(s.m));
+      $('gr').innerHTML = g.map((x, i) => `<div class="card" style="margin:0"><b>Kelompok ${i + 1}</b>${x.map(m => `<div>${E(m)}</div>`).join('') || '<div class="mu">Kosong</div>'}</div>`).join('');
+    }
+
+    // ---------- GRAFIK ----------
+    const PC = ['#4f46e5', '#059669', '#d97706', '#e11d48', '#0ea5e9', '#8b5cf6'];
+    function pie(t, d) {
+      const tot = d.reduce((a, x) => a + x[1], 0);
+      let a = -Math.PI / 2, s = '';
+      if (tot) d.forEach(([l, v], i) => {
+        if (!v) return;
+        const f = v / tot;
+        if (f > .999) { s += `<circle cx="60" cy="60" r="55" fill="${PC[i % 6]}"/>`; return; }
+        const b = a + f * 2 * Math.PI;
+        const p = x => (60 + 55 * Math.cos(x)).toFixed(2) + ' ' + (60 + 55 * Math.sin(x)).toFixed(2);
+        s += `<path d="M60 60L${p(a)}A55 55 0 ${f > .5 ? 1 : 0} 1 ${p(b)}Z" fill="${PC[i % 6]}" stroke="var(--card)" stroke-width="1"><title>${E(l)}: ${v}</title></path>`;
+        a = b;
+      });
+      return `<div class="card" style="margin:0"><b>${t}</b>${tot
+        ? `<div class="row" style="margin-top:8px"><svg viewBox="0 0 120 120" width="120" height="120">${s}</svg><div>${d.map(([l, v], i) => `<div class="mu"><span style="color:${PC[i % 6]}">●</span> ${E(l)}: ${v} (${Math.round(v / tot * 100)}%)</div>`).join('')}</div></div>`
+        : '<p class="mu">Belum ada data.</p>'}</div>`;
+    }
+
+    function pies(c, gd) {
+      const ks = Object.keys(S.att).filter(k => k.startsWith(c + '|'));
+      const nm = { H: 'Hadir', I: 'Izin', S: 'Sakit', A: 'Alpa' };
+      const up = S.tgs.filter(x => x.c == c && !x.d).sort((a, b) => (a.due || '9999') > (b.due || '9999') ? 1 : -1).slice(0, 4);
+      return `
+        <div class="g g2">
+          ${pie('🥧 Format bahan ajar', CAT.map(x => [x, S.mats.filter(m => m.cat == x).length]))}
+          ${pie('🥧 Kehadiran (MK ini)', Object.keys(nm).map(v => [nm[v], ks.reduce((n, k) => n + Object.values(S.att[k]).filter(z => z == v).length, 0)]))}
+          ${pie('🥧 Nilai akhir (MK ini)', Object.entries(gd))}
+          <div class="card" style="margin:0">
+            <b>📌 Tugas mendatang</b>
+            ${up.map(x => `<div class="row" style="justify-content:space-between"><span>${E(x.t)}</span><span class="tag">${E(dleft(x.due))}</span></div>`).join('') || '<p class="mu">Tidak ada tugas aktif.</p>'}
+          </div>
+        </div>`;
+    }
+
+    function dleft(d) {
+      if (!d) return 'Tanpa tenggat';
+      const n = Math.ceil((new Date(d + 'T00:00:00') - new Date().setHours(0, 0, 0, 0)) / 864e5);
+      return isNaN(n) ? '-' : n < 0 ? 'Lewat ' + (-n) + ' hari' : n == 0 ? 'Hari ini' : n + ' hari lagi';
+    }
+
+    go('dash');
+  </script>
+</body>
+</html>
